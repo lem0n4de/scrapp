@@ -26,7 +26,7 @@
 #include <spider.h>
 
 
-class MySpider : public Spider {
+class MySpider : public Scrapp::Spider {
 public:
     void parse(const std::string& result) override {
     };

@@ -26,21 +26,21 @@
 #include <cpr/cpr.h>
 
 
-void Spider::add_start_url(const std::string &url) {
+void Scrapp::Spider::add_start_url(const std::string& url) {
     this->_start_urls.push_back(url);
 }
 
-const std::vector<std::string> &Spider::start_urls() {
+const std::vector<std::string>& Scrapp::Spider::start_urls() {
     return this->_start_urls;
 }
 
-void Spider::start() {
+void Scrapp::Spider::start() {
     std::vector<std::future<cpr::Response>> futures;
-    for (const auto &url: this->_start_urls) {
+    for (const auto& url: this->_start_urls) {
         futures.emplace_back(cpr::GetAsync(cpr::Url{url}));
     }
 
-    for (auto &future: futures) {
+    for (auto& future: futures) {
         auto res = future.get();
         this->parse(res.text);
     }

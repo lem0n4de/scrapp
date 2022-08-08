@@ -26,20 +26,21 @@
 #include <string>
 #include <vector>
 
-class Spider {
-private:
-    std::vector<std::string> _start_urls;
-public:
-    virtual ~Spider() = default;
+namespace Scrapp {
+    class Spider {
+    private:
+        std::vector<std::string> _start_urls;
+    public:
+        virtual ~Spider() = default;
 
-    void add_start_url(const std::string& url);
+        void add_start_url(const std::string& url);
 
-    const std::vector<std::string>& start_urls();
+        const std::vector<std::string>& start_urls();
 
-    virtual void parse(const std::string& result) = 0;
+        virtual void parse(const std::string& result) = 0;
 
-    void start();
-};
-
+        void start();
+    };
+}
 
 #endif //SCRAPP_SPIDER_H
