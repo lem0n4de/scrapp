@@ -1,3 +1,9 @@
 [submodule "tests/external/catch2"]
 	path = tests/external/catch2
 	url = https://github.com/catchorg/Catch2.git
+[submodule "tests/external/trompeloeil"]
+	path = tests/external/trompeloeil
+	url = https://github.com/rollbear/trompeloeil.git
+[submodule "external/cpr"]
+	path = external/cpr
+	url = https://github.com/libcpr/cpr.git
