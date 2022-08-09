@@ -21,12 +21,11 @@ endif ()
 add_subdirectory(external/cpr)
 
 set(SCRAPP_SOURCES
-        spider.h spider.cpp)
+        spider.cpp request.h
+        request.h utils.h)
 
 add_library(${PROJECT_NAME} ${SCRAPP_SOURCES})
-target_include_directories(${PROJECT_NAME}
-        PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/external/cpr/include)
 target_link_libraries(${PROJECT_NAME}
-        PRIVATE cpr::cpr)
+        PUBLIC cpr::cpr)
 enable_testing()
 add_subdirectory(tests)
