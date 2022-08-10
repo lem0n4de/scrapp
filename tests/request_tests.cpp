@@ -23,33 +23,16 @@
 #include <catch2/catch_test_macros.hpp>
 #include <request.h>
 
-TEST_CASE("RequestParameter") {
-    SECTION("key and value are encoded correctly") {
-        auto param = Scrapp::RequestParameter("some key", "some value");
-        REQUIRE(param.key() == "some%20key");
-        REQUIRE(param.value() == "some%20value");
-    }
-}
-
 TEST_CASE("Request") {
     auto url = "https://example.org";
     SECTION("has url-only constructor") {
         auto req = Scrapp::Request(Scrapp::Url("https://example.org"));
     }
 
-    SECTION("accepts parameters from stl vector, list, array and url encodes them") {
+    SECTION("accepts parameters as map and url encodes them") {
         auto encoded_url = "https://example.org?some%20key=some%20value";
-        auto param = Scrapp::RequestParameter("some key", "some value");
-        std::vector<Scrapp::RequestParameter> params_vec = {param};
-        auto req = Scrapp::Request(Scrapp::Url(url), params_vec);
-        REQUIRE(req.url() == encoded_url);
-
-        std::array<Scrapp::RequestParameter, 1> params_arr = {param};
-        req = Scrapp::Request(Scrapp::Url(url), params_arr);
-        REQUIRE(req.url() == encoded_url);
-
-        std::list<Scrapp::RequestParameter> params_list = {param};
-        req = Scrapp::Request(Scrapp::Url(url), params_list);
+        auto params = Scrapp::RequestParameters{{"some key", "some value"}};
+        auto req = Scrapp::Request(Scrapp::Url(url), params);
         REQUIRE(req.url() == encoded_url);
     }
 }

@@ -24,44 +24,31 @@
 #define SCRAPP_REQUEST_H
 
 #include <cpr/cpr.h>
+
+#include <utility>
 #include "utils.h"
 
 
 namespace Scrapp {
     using Url = cpr::Url;
-
-    class RequestParameter {
-    public:
-        RequestParameter(const std::string& key, const std::string& value) : _key(Scrapp::url_encode(key)),
-                                                                             _value(Scrapp::url_encode(value)) {};
-        std::string key() { return this->_key; }
-        std::string value() { return this->_value; }
-    private:
-        const std::string _key;
-        const std::string _value;
-    };
+    using RequestParameters = std::unordered_map<std::string, std::string>;
 
     class Request {
     public:
         Request() = default;
         explicit Request(Url url) : _url(std::move(url)) {};
-        template<typename ParameterContainer>
-        Request(Url url, ParameterContainer params) : _url(url) {
-            for (auto& param: params) {
-                this->_parameters.push_back(param);
-            }
-        }
+        Request(Url url, RequestParameters params) : _url(std::move(url)), _parameters(std::move(params)) {}
         std::string url() {
             std::string total = this->_url.str();
             total = total + "?";
-            for (auto& param: this->_parameters) {
-                total += param.key() + "=" + param.value();
+            for (const auto& [key, value]: this->_parameters) {
+                total += Scrapp::url_encode(key) + "=" + Scrapp::url_encode(value);
             }
             return total;
         }
     private:
         Url _url;
-        std::vector<RequestParameter> _parameters;
+        RequestParameters _parameters;
     };
 }
 
