@@ -32,12 +32,24 @@ TEST_CASE("RequestParameter") {
 }
 
 TEST_CASE("Request") {
+    auto url = "https://example.org";
     SECTION("has url-only constructor") {
         auto req = Scrapp::Request(Scrapp::Url("https://example.org"));
     }
 
-    SECTION("accepts parameters") {
-        std::vector<Scrapp::RequestParameter> params = {Scrapp::RequestParameter("key", "value")};
-        auto req = Scrapp::Request(Scrapp::Url("https://example.org"), params);
+    SECTION("accepts parameters from stl vector, list, array and url encodes them") {
+        auto encoded_url = "https://example.org?some%20key=some%20value";
+        auto param = Scrapp::RequestParameter("some key", "some value");
+        std::vector<Scrapp::RequestParameter> params_vec = {param};
+        auto req = Scrapp::Request(Scrapp::Url(url), params_vec);
+        REQUIRE(req.url() == encoded_url);
+
+        std::array<Scrapp::RequestParameter, 1> params_arr = {param};
+        req = Scrapp::Request(Scrapp::Url(url), params_arr);
+        REQUIRE(req.url() == encoded_url);
+
+        std::list<Scrapp::RequestParameter> params_list = {param};
+        req = Scrapp::Request(Scrapp::Url(url), params_list);
+        REQUIRE(req.url() == encoded_url);
     }
 }

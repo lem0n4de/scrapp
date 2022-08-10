@@ -51,6 +51,14 @@ namespace Scrapp {
                 this->_parameters.push_back(param);
             }
         }
+        std::string url() {
+            std::string total = this->_url.str();
+            total = total + "?";
+            for (auto& param: this->_parameters) {
+                total += param.key() + "=" + param.value();
+            }
+            return total;
+        }
     private:
         Url _url;
         std::vector<RequestParameter> _parameters;
