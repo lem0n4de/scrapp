@@ -63,6 +63,10 @@ namespace Scrapp {
             return this->_headers;
         }
 
+        void set_render(bool render) {
+            this->_render = render;
+        }
+
         std::string url() {
             std::string total = this->_url.str();
             total = total + "?";
@@ -75,6 +79,7 @@ namespace Scrapp {
         Url _url;
         RequestParameters _parameters;
         Headers _headers;
+        bool _render = false;
     };
 }
 
