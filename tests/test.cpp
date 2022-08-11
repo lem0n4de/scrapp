@@ -26,14 +26,9 @@
 #include <spider.h>
 #include "request.h"
 #include "response.h"
+#include <iostream>
 
-class MySpider : public Scrapp::Spider {
-public:
-    void parse(const Scrapp::Response& result) override {
-    };
-};
-
-class MockSpider : public trompeloeil::mock_interface<MySpider> {
+class MockSpider : public trompeloeil::mock_interface<Scrapp::Spider> {
     IMPLEMENT_MOCK1 (parse);
 };
 
@@ -93,5 +88,16 @@ TEST_CASE("Spider class")
         }
         REQUIRE_CALL(mock_spider, parse(ANY(Scrapp::Response))).TIMES(3);
         mock_spider.start();
+    }
+
+    SECTION("response.json() throws Scrapp::invalid_json_exception on false content-type") {
+        std::string url = "https://example.org";
+        mock_spider.add_start_url(url);
+        Scrapp::Response res;
+        REQUIRE_CALL(mock_spider, parse(trompeloeil::_))
+        .LR_SIDE_EFFECT(res = _1);
+
+        mock_spider.start();
+        REQUIRE_THROWS_AS(res.json(), Scrapp::invalid_json_exception);
     }
 }

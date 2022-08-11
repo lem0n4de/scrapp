@@ -26,11 +26,11 @@ find_package(Boost 1.80.0 COMPONENTS json REQUIRED NO_SYSTEM_ENVIRONMENT_PATH NO
 
 set(SCRAPP_SOURCES
         spider.cpp request.h
-        request.h utils.h response.h)
+        request.h utils.h response.h exceptions.h)
 
 add_library(${PROJECT_NAME} ${SCRAPP_SOURCES})
-#target_include_directories(${PROJECT_NAME}
-#        PUBLIC ${Boost_INCLUDE_DIRS})
+target_include_directories(${PROJECT_NAME}
+        PUBLIC ${Boost_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME}
         PUBLIC cpr::cpr
         PUBLIC ${Boost_LIBRARIES})

@@ -38,7 +38,7 @@ namespace Scrapp {
 
         const std::vector<std::string>& start_urls();
 
-        virtual void parse(const Scrapp::Response& result) = 0;
+        virtual void parse(Scrapp::Response result) = 0;
 
         void start();
     };

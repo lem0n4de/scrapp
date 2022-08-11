@@ -20,41 +20,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef SCRAPP_RESPONSE_H
-#define SCRAPP_RESPONSE_H
+#ifndef SCRAPP_EXCEPTIONS_H
+#define SCRAPP_EXCEPTIONS_H
 
-#include <cpr/cpr.h>
-#include <boost/json.hpp>
-#include <boost/json/string_view.hpp>
-#include <boost/algorithm/string.hpp>
-#include <iostream>
-#include "exceptions.h"
+#include <string>
+#include <exception>
+#include <utility>
 
 namespace Scrapp {
-    class Response : public cpr::Response {
+    class exception : public std::exception {
     public:
-        template<typename... Args>
-        explicit Response(Args... args) : cpr::Response(args...) {}
-        ~Response() = default;
+        explicit exception(std::string message) : message(std::move(message)) {}
+        [[nodiscard]] const char *what() const noexcept override { return this->message.c_str(); }
 
-        boost::json::value json() {
-            // covers both application/json and application/ld+json
-            if (!boost::algorithm::contains(this->header.at("content-type"), "json")) {
-                throw Scrapp::invalid_json_exception("response to " + this->url.str() + " is not a valid json");
-            }
-            boost::json::parse_options opts;
-            opts.allow_comments = true;
-            opts.allow_trailing_commas = true;
-            boost::json::error_code ec;
-
-            unsigned char buf[4096];
-            boost::json::static_resource res(buf);
-            boost::json::string_view sw = this->text;
-            auto j = boost::json::parse(sw, ec, &res, opts);
-            return j;
-        }
     private:
+        const std::string message;
+    };
+
+    class invalid_json_exception : public exception {
+    public:
+        explicit invalid_json_exception(std::string message) : exception(std::move(message)) {}
     };
 }
-
-#endif //SCRAPP_RESPONSE_H
+#endif //SCRAPP_EXCEPTIONS_H
