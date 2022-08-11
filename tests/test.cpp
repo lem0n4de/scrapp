@@ -25,13 +25,13 @@
 #include <catch2/trompeloeil.hpp>
 #include <spider.h>
 #include "request.h"
+#include "response.h"
 
 class MySpider : public Scrapp::Spider {
 public:
-    void parse(const std::string& result) override {
+    void parse(const Scrapp::Response& result) override {
     };
 };
-
 
 class MockSpider : public trompeloeil::mock_interface<MySpider> {
     IMPLEMENT_MOCK1 (parse);
@@ -70,12 +70,19 @@ TEST_CASE("Request") {
 TEST_CASE("Spider class")
 {
     auto mock_spider = MockSpider();
-    auto valid_html = trompeloeil::re(R"((?:\<!doctype html\>)*\s*<\/?[a-z][\s\S]*>)");
     SECTION("has start urls")
     {
         std::string url = "https://example.org";
         mock_spider.add_start_url(url);
         REQUIRE_THAT(mock_spider.start_urls(), Catch::Matchers::VectorContains(url));
+    }
+
+    SECTION("parse gets proper response")
+    {
+        std::string url = "https://example.org";
+        mock_spider.add_start_url(url);
+        ALLOW_CALL(mock_spider, parse(ANY(Scrapp::Response)));
+        mock_spider.start();
     }
 
     SECTION("calls parse once for each url after started")
@@ -84,16 +91,7 @@ TEST_CASE("Spider class")
         for (int i = 0; i < 3; i++) {
             mock_spider.add_start_url(url);
         }
-        REQUIRE_CALL(mock_spider, parse(valid_html)).TIMES(3);
+        REQUIRE_CALL(mock_spider, parse(ANY(Scrapp::Response))).TIMES(3);
         mock_spider.start();
     }
-
-    SECTION("parse gets valid html")
-    {
-        std::string url = "https://example.org";
-        mock_spider.add_start_url(url);
-        ALLOW_CALL(mock_spider, parse(valid_html));
-        mock_spider.start();
-    }
-
 }

@@ -1,4 +1,3 @@
-
 // MIT License
 //
 // Copyright (c) 2022 Yunus Emre ÖRCÜN
@@ -21,27 +20,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "spider.h"
-#include <future>
+#ifndef SCRAPP_RESPONSE_H
+#define SCRAPP_RESPONSE_H
+
 #include <cpr/cpr.h>
 
-
-void Scrapp::Spider::add_start_url(const std::string& url) {
-    this->_start_urls.push_back(url);
+namespace Scrapp {
+    class Response : public cpr::Response {
+    public:
+        template<typename... Args>
+        explicit Response(Args... args) : cpr::Response(args...) {}
+        ~Response() = default;
+    private:
+    };
 }
 
-const std::vector<std::string>& Scrapp::Spider::start_urls() {
-    return this->_start_urls;
-}
-
-void Scrapp::Spider::start() {
-    std::vector<std::future<cpr::Response>> futures;
-    for (const auto& url: this->_start_urls) {
-        futures.emplace_back(cpr::GetAsync(cpr::Url{url}));
-    }
-
-    for (auto& future: futures) {
-        auto res = future.get();
-        this->parse(static_cast<Scrapp::Response>(res));
-    }
-}
+#endif //SCRAPP_RESPONSE_H

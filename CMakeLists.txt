@@ -26,7 +26,7 @@ find_package(Boost 1.80.0 COMPONENTS json REQUIRED NO_SYSTEM_ENVIRONMENT_PATH NO
 
 set(SCRAPP_SOURCES
         spider.cpp request.h
-        request.h utils.h)
+        request.h utils.h response.h)
 
 add_library(${PROJECT_NAME} ${SCRAPP_SOURCES})
 #target_include_directories(${PROJECT_NAME}
