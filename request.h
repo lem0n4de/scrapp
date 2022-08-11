@@ -31,13 +31,26 @@
 
 namespace Scrapp {
     using Url = cpr::Url;
-    using RequestParameters = std::unordered_map<std::string, std::string>;
+
+    class RequestParameters : public std::unordered_map<std::string, std::string> {
+        using unordered_map::unordered_map;
+    };
+
+    class Headers : public std::unordered_map<std::string, std::string> {
+        using unordered_map::unordered_map;
+    };
 
     class Request {
     public:
         Request() = default;
         explicit Request(Url url) : _url(std::move(url)) {};
         Request(Url url, RequestParameters params) : _url(std::move(url)), _parameters(std::move(params)) {}
+        Request(Url url, Headers headers) : _url(std::move(url)), _headers(std::move(headers)) {}
+
+        Headers headers() {
+            return this->_headers;
+        }
+
         std::string url() {
             std::string total = this->_url.str();
             total = total + "?";
@@ -49,6 +62,7 @@ namespace Scrapp {
     private:
         Url _url;
         RequestParameters _parameters;
+        Headers _headers;
     };
 }
 

@@ -24,7 +24,7 @@
 #include <catch2/matchers/catch_matchers_vector.hpp>
 #include <catch2/trompeloeil.hpp>
 #include <spider.h>
-
+#include "request.h"
 
 class MySpider : public Scrapp::Spider {
 public:
@@ -36,6 +36,26 @@ public:
 class MockSpider : public trompeloeil::mock_interface<MySpider> {
     IMPLEMENT_MOCK1 (parse);
 };
+
+TEST_CASE("Request") {
+    auto url = "https://example.org";
+    SECTION("has url-only constructor") {
+        auto req = Scrapp::Request(Scrapp::Url("https://example.org"));
+    }
+
+    SECTION("accepts parameters as map and url encodes them") {
+        auto encoded_url = "https://example.org?some%20key=some%20value";
+        auto params = Scrapp::RequestParameters{{"some key", "some value"}};
+        auto req = Scrapp::Request(Scrapp::Url(url), params);
+        REQUIRE(req.url() == encoded_url);
+    }
+
+    SECTION("accepts headers as map") {
+        auto headers = Scrapp::Headers{{"key", "value"}};
+        auto req = Scrapp::Request(Scrapp::Url(url), headers);
+        REQUIRE(req.headers().at("key") == "value");
+    }
+}
 
 TEST_CASE("Spider class")
 {
