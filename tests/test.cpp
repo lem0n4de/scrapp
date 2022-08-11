@@ -55,6 +55,16 @@ TEST_CASE("Request") {
         auto req = Scrapp::Request(Scrapp::Url(url), headers);
         REQUIRE(req.headers().at("key") == "value");
     }
+
+    SECTION("headers and parameters can be added later on") {
+        auto req = Scrapp::Request(Scrapp::Url(url));
+        req.add_header({"key", "value"});
+        REQUIRE(req.headers().at("key") == "value");
+
+        req.add_parameter({"some key", "some value"});
+        REQUIRE(req.parameters().at("some key") == "some value");
+        REQUIRE(req.url() == "https://example.org?some%20key=some%20value");
+    }
 }
 
 TEST_CASE("Spider class")

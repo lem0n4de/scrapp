@@ -47,6 +47,18 @@ namespace Scrapp {
         Request(Url url, RequestParameters params) : _url(std::move(url)), _parameters(std::move(params)) {}
         Request(Url url, Headers headers) : _url(std::move(url)), _headers(std::move(headers)) {}
 
+        void add_parameter(const std::pair<std::string, std::string>& param) noexcept {
+            this->_parameters[param.first] = param.second;
+        }
+
+        RequestParameters parameters() {
+            return this->_parameters;
+        }
+
+        void add_header(const std::pair<std::string, std::string>& header) noexcept {
+            this->_headers[header.first] = header.second;
+        }
+
         Headers headers() {
             return this->_headers;
         }
