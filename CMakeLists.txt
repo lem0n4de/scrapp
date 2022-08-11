@@ -19,13 +19,20 @@ if (GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
 endif ()
 
 add_subdirectory(external/cpr)
+execute_process(COMMAND ./install-boost.sh
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+set(Boost_DIR external/boost/lib/cmake/Boost-1.80.0)
+find_package(Boost 1.80.0 COMPONENTS json REQUIRED NO_SYSTEM_ENVIRONMENT_PATH NO_CMAKE_SYSTEM_PATH)
 
 set(SCRAPP_SOURCES
         spider.cpp request.h
         request.h utils.h)
 
 add_library(${PROJECT_NAME} ${SCRAPP_SOURCES})
+#target_include_directories(${PROJECT_NAME}
+#        PUBLIC ${Boost_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME}
-        PUBLIC cpr::cpr)
+        PUBLIC cpr::cpr
+        PUBLIC ${Boost_LIBRARIES})
 enable_testing()
 add_subdirectory(tests)
