@@ -25,23 +25,32 @@
 #include <future>
 #include <cpr/cpr.h>
 
-
-void Scrapp::Spider::add_start_url(const std::string& url) {
-    this->_start_urls.push_back(url);
-}
-
-const std::vector<std::string>& Scrapp::Spider::start_urls() {
-    return this->_start_urls;
-}
-
 void Scrapp::Spider::start() {
     std::vector<std::future<cpr::Response>> futures;
-    for (const auto& url: this->_start_urls) {
-        futures.emplace_back(cpr::GetAsync(cpr::Url{url}));
+    for (const auto& req: this->_requests) {
+        auto params = cpr::Parameters{};
+        for (const auto& [key, value]: req.parameters()) {
+            params.Add({key, value});
+        }
+        auto headers = cpr::Header{};
+        for (const auto& [key, value]: req.headers()) {
+            headers[key] = value;
+        }
+        futures.emplace_back(cpr::GetAsync(cpr::Url(req.url()), params, headers));
     }
 
     for (auto& future: futures) {
         auto res = future.get();
         this->parse(static_cast<Scrapp::Response>(res));
     }
+}
+void Scrapp::Spider::add_request(const std::string& url) {
+    this->_requests.emplace_back(Url(url));
+}
+void Scrapp::Spider::add_request(const Scrapp::Request& request) {
+    this->_requests.push_back(request);
+
+}
+const std::vector<Scrapp::Request>& Scrapp::Spider::requests() {
+    return this->_requests;
 }

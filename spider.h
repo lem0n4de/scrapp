@@ -25,18 +25,19 @@
 
 #include <string>
 #include <vector>
+#include "request.h"
 #include "response.h"
 
 namespace Scrapp {
     class Spider {
     private:
-        std::vector<std::string> _start_urls;
+        std::vector<Request> _requests;
     public:
         virtual ~Spider() = default;
 
-        void add_start_url(const std::string& url);
-
-        const std::vector<std::string>& start_urls();
+        void add_request(const std::string& url);
+        void add_request(const Request& request);
+        const std::vector<Request>& requests();
 
         virtual void parse(Scrapp::Response result) = 0;
 

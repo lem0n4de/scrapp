@@ -65,17 +65,17 @@ TEST_CASE("Request") {
 TEST_CASE("Spider class")
 {
     auto mock_spider = MockSpider();
-    SECTION("has start urls")
+    SECTION("add request with string creates a get request in spider.requests()")
     {
         std::string url = "https://example.org";
-        mock_spider.add_start_url(url);
-        REQUIRE_THAT(mock_spider.start_urls(), Catch::Matchers::VectorContains(url));
+        mock_spider.add_request(url);
+        REQUIRE_THAT(mock_spider.requests(), Catch::Matchers::VectorContains(Scrapp::Request(Scrapp::Url(url))));
     }
 
     SECTION("parse gets proper response")
     {
         std::string url = "https://example.org";
-        mock_spider.add_start_url(url);
+        mock_spider.add_request(url);
         ALLOW_CALL(mock_spider, parse(ANY(Scrapp::Response)));
         mock_spider.start();
     }
@@ -84,7 +84,7 @@ TEST_CASE("Spider class")
     {
         std::string url = "https://example.org";
         for (int i = 0; i < 3; i++) {
-            mock_spider.add_start_url(url);
+            mock_spider.add_request(url);
         }
         REQUIRE_CALL(mock_spider, parse(ANY(Scrapp::Response))).TIMES(3);
         mock_spider.start();
@@ -92,7 +92,7 @@ TEST_CASE("Spider class")
 
     SECTION("response.json() throws Scrapp::invalid_json_exception on false content-type") {
         std::string url = "https://example.org";
-        mock_spider.add_start_url(url);
+        mock_spider.add_request(url);
         Scrapp::Response res;
         REQUIRE_CALL(mock_spider, parse(trompeloeil::_))
         .LR_SIDE_EFFECT(res = _1);

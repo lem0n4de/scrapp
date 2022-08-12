@@ -51,7 +51,7 @@ namespace Scrapp {
             this->_parameters[param.first] = param.second;
         }
 
-        RequestParameters parameters() {
+        RequestParameters parameters() const noexcept {
             return this->_parameters;
         }
 
@@ -59,21 +59,28 @@ namespace Scrapp {
             this->_headers[header.first] = header.second;
         }
 
-        Headers headers() {
+        Headers headers() const noexcept {
             return this->_headers;
         }
 
-        void set_render(bool render) {
+        void set_render(bool render) noexcept {
             this->_render = render;
         }
 
-        std::string url() {
+        std::string url() const noexcept {
             std::string total = this->_url.str();
             total = total + "?";
             for (const auto& [key, value]: this->_parameters) {
                 total += Scrapp::url_encode(key) + "=" + Scrapp::url_encode(value);
             }
             return total;
+        }
+
+        bool operator==(const Request& other) const noexcept {
+            return this->_url == other._url &&
+                   this->_parameters == other._parameters &&
+                   this->_headers == other._headers &&
+                   this->_render == other._render;
         }
     private:
         Url _url;
