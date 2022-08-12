@@ -42,7 +42,7 @@ TEST_CASE("Request") {
         auto encoded_url = "https://example.org?some%20key=some%20value";
         auto params = Scrapp::RequestParameters{{"some key", "some value"}};
         auto req = Scrapp::Request(Scrapp::Url(url), params);
-        REQUIRE(req.url() == encoded_url);
+        REQUIRE(req.full_url() == encoded_url);
     }
 
     SECTION("accepts headers as map") {
@@ -58,7 +58,7 @@ TEST_CASE("Request") {
 
         req.add_parameter({"some key", "some value"});
         REQUIRE(req.parameters().at("some key") == "some value");
-        REQUIRE(req.url() == "https://example.org?some%20key=some%20value");
+        REQUIRE(req.full_url() == "https://example.org?some%20key=some%20value");
     }
 }
 
@@ -99,5 +99,46 @@ TEST_CASE("Spider class")
 
         mock_spider.start();
         REQUIRE_THROWS_AS(res.json(), Scrapp::invalid_json_exception);
+    }
+
+    SECTION("response.json() return boost::json::value on application/json responses") {
+        std::string url = "https://www.httpbin.org/get";
+        mock_spider.add_request(url);
+        Scrapp::Response res;
+        REQUIRE_CALL(mock_spider, parse(trompeloeil::_)).LR_SIDE_EFFECT(res = _1);
+        mock_spider.start();
+        REQUIRE_NOTHROW(res.json());
+        auto js = res.json();
+        REQUIRE(js.at("url").get_string() == url);
+    }
+
+    SECTION("Spider sends parameters correctly") {
+        std::string url = "https://www.httpbin.org/get";
+        Scrapp::Request req{Scrapp::Url(url)};
+        req.add_parameter({"key", "value"});
+        mock_spider.add_request(req);
+
+        Scrapp::Response res;
+        REQUIRE_CALL(mock_spider, parse(trompeloeil::_)).LR_SIDE_EFFECT(res = _1);
+        mock_spider.start();
+
+        REQUIRE_NOTHROW(res.json());
+        auto js = res.json();
+        REQUIRE(js.at("args").at("key").get_string() == "value");
+    }
+
+    SECTION("Spider sends headers correctly") {
+        std::string url = "https://www.httpbin.org/get";
+        Scrapp::Request req{Scrapp::Url(url)};
+        req.add_header({"key", "value"});
+        mock_spider.add_request(req);
+
+        Scrapp::Response res;
+        REQUIRE_CALL(mock_spider, parse(trompeloeil::_)).LR_SIDE_EFFECT(res = _1);
+        mock_spider.start();
+
+        REQUIRE_NOTHROW(res.json());
+        auto js = res.json();
+        REQUIRE(js.at("headers").at("Key") == "value");
     }
 }

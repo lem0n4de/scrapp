@@ -67,13 +67,17 @@ namespace Scrapp {
             this->_render = render;
         }
 
-        std::string url() const noexcept {
+        std::string full_url() const noexcept {
             std::string total = this->_url.str();
             total = total + "?";
             for (const auto& [key, value]: this->_parameters) {
                 total += Scrapp::url_encode(key) + "=" + Scrapp::url_encode(value);
             }
             return total;
+        }
+
+        std::string url() const noexcept {
+            return this->_url.str();
         }
 
         bool operator==(const Request& other) const noexcept {
