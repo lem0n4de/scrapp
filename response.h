@@ -31,16 +31,37 @@
 #include "exceptions.h"
 
 namespace Scrapp {
-    class Response : public cpr::Response {
+    class Response {
     public:
-        template<typename... Args>
-        explicit Response(Args... args) : cpr::Response(args...) {}
+        explicit Response(cpr::Response& res) : text{res.text}, headers{res.header}, url{res.url},
+                                                elapsed{res.elapsed},
+                                                cookies{res.cookies}, error{res.error}, raw_header{res.raw_header},
+                                                status_line{res.status_line}, reason{res.reason},
+                                                uploaded_bytes{res.uploaded_bytes},
+                                                downloaded_bytes{res.downloaded_bytes},
+                                                redirect_count{res.redirect_count}, status_code{res.status_code} {}
+        explicit Response() = default;
         ~Response() = default;
+
+        long status_code{};
+        std::string text{};
+        Headers headers{};
+        Url url{};
+        double elapsed{};
+        cpr::Cookies cookies{};
+        cpr::Error error{};
+        std::string raw_header{};
+        std::string status_line{};
+        std::string reason{};
+        cpr::cpr_off_t uploaded_bytes{};
+        cpr::cpr_off_t downloaded_bytes{};
+        long redirect_count{};
 
         boost::json::value json() {
             // covers both application/json and application/ld+json
-            if (!boost::algorithm::contains(this->header.at("content-type"), "json")) {
-                throw Scrapp::invalid_json_exception("response to " + this->url.str() + " is not a valid json");
+            if (!boost::algorithm::contains(this->headers.at("Content-Type"), "json")) {
+                throw Scrapp::invalid_json_exception(
+                        "response to " + this->url.str() + " is not a valid json: " + this->text);
             }
             boost::json::parse_options opts;
             opts.allow_comments = true;

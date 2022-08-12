@@ -38,6 +38,13 @@ namespace Scrapp {
 
     class Headers : public std::unordered_map<std::string, std::string> {
         using unordered_map::unordered_map;
+
+    public:
+        explicit Headers(const std::map<std::string, std::string, cpr::CaseInsensitiveCompare>& map) {
+            for (const auto& [key, value]: map) {
+                this->insert_or_assign(key, value);
+            }
+        }
     };
 
     class Request {

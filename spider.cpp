@@ -41,7 +41,7 @@ void Scrapp::Spider::start() {
 
     for (auto& future: futures) {
         auto res = future.get();
-        this->parse(static_cast<Scrapp::Response>(res));
+        this->parse(Scrapp::Response(res));
     }
 }
 void Scrapp::Spider::add_request(const std::string& url) {
