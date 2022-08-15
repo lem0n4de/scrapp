@@ -65,11 +65,11 @@ TEST_CASE("Request") {
 TEST_CASE("Spider class")
 {
     auto mock_spider = MockSpider();
-    SECTION("add request with string creates a get request in spider.requests()")
+    SECTION("requests added before start() are added to request_queue")
     {
         std::string url = "https://example.org";
         mock_spider.add_request(url);
-        REQUIRE_THAT(mock_spider.requests(), Catch::Matchers::VectorContains(Scrapp::Request(Scrapp::Url(url))));
+        REQUIRE_THAT(mock_spider.request_queue(), Catch::Matchers::Contains(Scrapp::Request(Scrapp::Url(url))));
     }
 
     SECTION("parse gets proper response")
@@ -78,6 +78,7 @@ TEST_CASE("Spider class")
         mock_spider.add_request(url);
         ALLOW_CALL(mock_spider, parse(ANY(Scrapp::Response)));
         mock_spider.start();
+        mock_spider.wait();
     }
 
     SECTION("calls parse once for each url after started")
@@ -88,6 +89,7 @@ TEST_CASE("Spider class")
         }
         REQUIRE_CALL(mock_spider, parse(ANY(Scrapp::Response))).TIMES(3);
         mock_spider.start();
+        mock_spider.wait();
     }
 
     SECTION("response.json() throws Scrapp::invalid_json_exception on false content-type") {
@@ -98,6 +100,7 @@ TEST_CASE("Spider class")
         .LR_SIDE_EFFECT(res = _1);
 
         mock_spider.start();
+        mock_spider.wait();
         REQUIRE_THROWS_AS(res.json(), Scrapp::invalid_json_exception);
     }
 
@@ -107,6 +110,7 @@ TEST_CASE("Spider class")
         Scrapp::Response res;
         REQUIRE_CALL(mock_spider, parse(trompeloeil::_)).LR_SIDE_EFFECT(res = _1);
         mock_spider.start();
+        mock_spider.wait();
         REQUIRE_NOTHROW(res.json());
         auto js = res.json();
         REQUIRE(js.at("url").get_string() == url);
@@ -121,7 +125,7 @@ TEST_CASE("Spider class")
         Scrapp::Response res;
         REQUIRE_CALL(mock_spider, parse(trompeloeil::_)).LR_SIDE_EFFECT(res = _1);
         mock_spider.start();
-
+        mock_spider.wait();
         REQUIRE_NOTHROW(res.json());
         auto js = res.json();
         REQUIRE(js.at("args").at("key").get_string() == "value");
@@ -136,9 +140,27 @@ TEST_CASE("Spider class")
         Scrapp::Response res;
         REQUIRE_CALL(mock_spider, parse(trompeloeil::_)).LR_SIDE_EFFECT(res = _1);
         mock_spider.start();
+        mock_spider.wait();
 
         REQUIRE_NOTHROW(res.json());
         auto js = res.json();
         REQUIRE(js.at("headers").at("Key") == "value");
+    }
+
+    SECTION("Requests added after start are sent correctly") {
+        std::string url = "https://www.httpbin.org/get";
+        int count = 5;
+        for (int i = 0; i < count; i++) {
+            mock_spider.add_request(url);
+        }
+        std::vector<Scrapp::Response> responses;
+        ALLOW_CALL(mock_spider, parse(trompeloeil::_)).LR_SIDE_EFFECT(responses.push_back(_1));
+        mock_spider.start();
+
+        for (int i = 0; i < count; i++) {
+            mock_spider.add_request(url);
+        }
+        mock_spider.wait();
+        REQUIRE(responses.size() == count * 2);
     }
 }

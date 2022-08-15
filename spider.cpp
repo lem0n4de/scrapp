@@ -26,31 +26,59 @@
 #include <cpr/cpr.h>
 
 void Scrapp::Spider::start() {
-    std::vector<std::future<cpr::Response>> futures;
-    for (const auto& req: this->_requests) {
-        auto params = cpr::Parameters{};
-        for (const auto& [key, value]: req.parameters()) {
-            params.Add({key, value});
-        }
-        auto headers = cpr::Header{};
-        for (const auto& [key, value]: req.headers()) {
-            headers[key] = value;
-        }
-        futures.emplace_back(cpr::GetAsync(cpr::Url(req.url()), params, headers));
+    if (!this->running()) {
+        this->running_ = true;
+        this->request_added_.connect([this](const Request& request) { this->on_request_added_(request); });
+        this->request_finished_.connect([this](const Request& request, const Response& response) {
+            this->on_request_finished_(request, response);
+        });
     }
-
-    for (auto& future: futures) {
-        auto res = future.get();
-        this->parse(Scrapp::Response(res));
+    for (; !this->request_queue_.empty(); this->request_queue_.pop_front()) {
+        auto front = this->request_queue_.front();
+        this->request_added_(front);
     }
 }
 void Scrapp::Spider::add_request(const std::string& url) {
-    this->_requests.emplace_back(Url(url));
+    auto req = Scrapp::Request(Scrapp::Url(url));
+    this->add_request(req);
 }
 void Scrapp::Spider::add_request(const Scrapp::Request& request) {
-    this->_requests.push_back(request);
-
+    this->request_queue_.push_back(request);
+    if (this->running()) {
+        this->request_added_(request);
+    }
 }
-const std::vector<Scrapp::Request>& Scrapp::Spider::requests() {
-    return this->_requests;
+const std::deque<Scrapp::Request>& Scrapp::Spider::request_queue() const noexcept {
+    return this->request_queue_;
+}
+void Scrapp::Spider::on_request_added_(const Scrapp::Request& request) {
+    asio::post(this->thread_pool_, [this, request]() {
+        auto params = cpr::Parameters{};
+        for (const auto& [key, value]: request.parameters()) {
+            params.Add({key, value});
+        }
+        auto headers = cpr::Header{};
+        for (const auto& [key, value]: request.headers()) {
+            headers[key] = value;
+        }
+        auto c_res = cpr::Get(cpr::Url{request.url()}, params, headers);
+        this->request_finished_(request, Scrapp::Response(c_res));
+    });
+}
+void Scrapp::Spider::on_request_finished_(const Scrapp::Request& request, const Scrapp::Response& response) {
+    asio::post(this->thread_pool_, [this, request, response]() {
+        this->parse(response);
+    });
+}
+void Scrapp::Spider::wait() {
+    this->work_guard_.reset();
+    this->thread_pool_.join();
+    this->running_ = false;
+}
+void Scrapp::Spider::stop() {
+    this->thread_pool_.stop();
+    this->running_ = false;
+}
+bool Scrapp::Spider::running() const {
+    return this->running_;
 }
