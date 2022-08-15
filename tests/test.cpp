@@ -9,8 +9,8 @@
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -20,16 +20,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include "request.h"
+#include "response.h"
 #include <catch2/catch_all.hpp>
 #include <catch2/matchers/catch_matchers_vector.hpp>
 #include <catch2/trompeloeil.hpp>
-#include <spider.h>
-#include "request.h"
-#include "response.h"
 #include <iostream>
+#include <spider.h>
 
 class MockSpider : public trompeloeil::mock_interface<Scrapp::Spider> {
-    IMPLEMENT_MOCK1 (parse);
+    IMPLEMENT_MOCK1(parse);
 };
 
 TEST_CASE("Request") {
@@ -58,22 +58,22 @@ TEST_CASE("Request") {
 
         req.add_parameter({"some key", "some value"});
         REQUIRE(req.parameters().at("some key") == "some value");
-        REQUIRE(req.full_url() == "https://example.org?some%20key=some%20value");
+        REQUIRE(
+            req.full_url() == "https://example.org?some%20key=some%20value");
     }
 }
 
-TEST_CASE("Spider class")
-{
+TEST_CASE("Spider class") {
     auto mock_spider = MockSpider();
-    SECTION("requests added before start() are added to request_queue")
-    {
+    SECTION("requests added before start() are added to request_queue") {
         std::string url = "https://example.org";
         mock_spider.add_request(url);
-        REQUIRE_THAT(mock_spider.request_queue(), Catch::Matchers::Contains(Scrapp::Request(Scrapp::Url(url))));
+        REQUIRE_THAT(
+            mock_spider.request_queue(),
+            Catch::Matchers::Contains(Scrapp::Request(Scrapp::Url(url))));
     }
 
-    SECTION("parse gets proper response")
-    {
+    SECTION("parse gets proper response") {
         std::string url = "https://example.org";
         mock_spider.add_request(url);
         ALLOW_CALL(mock_spider, parse(ANY(Scrapp::Response)));
@@ -81,8 +81,7 @@ TEST_CASE("Spider class")
         mock_spider.wait();
     }
 
-    SECTION("calls parse once for each url after started")
-    {
+    SECTION("calls parse once for each url after started") {
         std::string url = "https://example.org";
         for (int i = 0; i < 3; i++) {
             mock_spider.add_request(url);
@@ -92,23 +91,26 @@ TEST_CASE("Spider class")
         mock_spider.wait();
     }
 
-    SECTION("response.json() throws Scrapp::invalid_json_exception on false content-type") {
+    SECTION("response.json() throws Scrapp::invalid_json_exception on false "
+            "content-type") {
         std::string url = "https://example.org";
         mock_spider.add_request(url);
         Scrapp::Response res;
         REQUIRE_CALL(mock_spider, parse(trompeloeil::_))
-        .LR_SIDE_EFFECT(res = _1);
+            .LR_SIDE_EFFECT(res = _1);
 
         mock_spider.start();
         mock_spider.wait();
         REQUIRE_THROWS_AS(res.json(), Scrapp::invalid_json_exception);
     }
 
-    SECTION("response.json() return boost::json::value on application/json responses") {
+    SECTION("response.json() return boost::json::value on application/json "
+            "responses") {
         std::string url = "https://www.httpbin.org/get";
         mock_spider.add_request(url);
         Scrapp::Response res;
-        REQUIRE_CALL(mock_spider, parse(trompeloeil::_)).LR_SIDE_EFFECT(res = _1);
+        REQUIRE_CALL(mock_spider, parse(trompeloeil::_))
+            .LR_SIDE_EFFECT(res = _1);
         mock_spider.start();
         mock_spider.wait();
         REQUIRE_NOTHROW(res.json());
@@ -123,7 +125,8 @@ TEST_CASE("Spider class")
         mock_spider.add_request(req);
 
         Scrapp::Response res;
-        REQUIRE_CALL(mock_spider, parse(trompeloeil::_)).LR_SIDE_EFFECT(res = _1);
+        REQUIRE_CALL(mock_spider, parse(trompeloeil::_))
+            .LR_SIDE_EFFECT(res = _1);
         mock_spider.start();
         mock_spider.wait();
         REQUIRE_NOTHROW(res.json());
@@ -138,7 +141,8 @@ TEST_CASE("Spider class")
         mock_spider.add_request(req);
 
         Scrapp::Response res;
-        REQUIRE_CALL(mock_spider, parse(trompeloeil::_)).LR_SIDE_EFFECT(res = _1);
+        REQUIRE_CALL(mock_spider, parse(trompeloeil::_))
+            .LR_SIDE_EFFECT(res = _1);
         mock_spider.start();
         mock_spider.wait();
 
@@ -154,7 +158,8 @@ TEST_CASE("Spider class")
             mock_spider.add_request(url);
         }
         std::vector<Scrapp::Response> responses;
-        ALLOW_CALL(mock_spider, parse(trompeloeil::_)).LR_SIDE_EFFECT(responses.push_back(_1));
+        ALLOW_CALL(mock_spider, parse(trompeloeil::_))
+            .LR_SIDE_EFFECT(responses.push_back(_1));
         mock_spider.start();
 
         for (int i = 0; i < count; i++) {

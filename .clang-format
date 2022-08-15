@@ -1,0 +1,14 @@
+﻿---
+BasedOnStyle: LLVM
+AlignAfterOpenBracket: AlwaysBreak
+IndentWidth: 4
+NamespaceIndentation: All
+PointerAlignment: Left
+SortIncludes: CaseInsensitive
+SortUsingDeclarations: true
+Standard: c++17
+ColumnLimit: 80
+SpaceAfterTemplateKeyword: false
+SeparateDefinitionBlocks: Always
+TabWidth: 4
+...

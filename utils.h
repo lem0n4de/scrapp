@@ -9,8 +9,8 @@
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -34,7 +34,7 @@ namespace Scrapp {
         escaped.fill('0');
         escaped << std::hex;
 
-        for (char c: value) {
+        for (char c : value) {
             // Keep alphanumeric and other accepted characters intact
             if (isalnum(c) || c == '-' || c == '_' || c == '.' || c == '~') {
                 escaped << c;
@@ -43,7 +43,7 @@ namespace Scrapp {
 
             // Any other characters are percent-encoded
             escaped << std::uppercase;
-            escaped << '%' << std::setw(2) << int((unsigned char) c);
+            escaped << '%' << std::setw(2) << int((unsigned char)c);
             escaped << std::nouppercase;
         }
 
@@ -77,6 +77,6 @@ namespace Scrapp {
 
         return escaped.str();
     }
-}
+} // namespace Scrapp
 
-#endif //SCRAPP_UTILS_H
+#endif // SCRAPP_UTILS_H

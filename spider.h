@@ -9,8 +9,8 @@
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,33 +23,38 @@
 #ifndef SCRAPP_SPIDER_H
 #define SCRAPP_SPIDER_H
 
-#include <string>
-#include <vector>
-#include <boost/signals2.hpp>
-#include <boost/asio.hpp>
-#include <deque>
 #include "request.h"
 #include "response.h"
+#include <boost/asio.hpp>
+#include <boost/signals2.hpp>
+#include <deque>
+#include <string>
+#include <vector>
 
 namespace asio = boost::asio;
 namespace signals = boost::signals2;
 
 namespace Scrapp {
     class Spider {
-    private:
+      private:
         bool running_ = false;
         std::vector<Request> _requests;
         std::deque<Request> request_queue_;
         signals::signal<void(const Request&)> request_added_;
         void on_request_added_(const Request& request);
-        signals::signal<void(const Request&, const Response&)> request_finished_;
-        void on_request_finished_(const Request& request, const Response& response);
+        signals::signal<void(const Request&, const Response&)>
+            request_finished_;
+        void
+        on_request_finished_(const Request& request, const Response& response);
         std::size_t thread_count_;
         asio::thread_pool thread_pool_;
-        asio::executor_work_guard <asio::thread_pool::executor_type> work_guard_;
-    public:
-        explicit Spider(std::size_t thread_count = 8) : thread_count_{thread_count}, thread_pool_{thread_count_},
-                                                        work_guard_{asio::make_work_guard(thread_pool_)} {}
+        asio::executor_work_guard<asio::thread_pool::executor_type> work_guard_;
+
+      public:
+        explicit Spider(std::size_t thread_count = 8)
+            : thread_count_{thread_count}, thread_pool_{thread_count_},
+              work_guard_{asio::make_work_guard(thread_pool_)} {}
+
         virtual ~Spider() = default;
 
         void add_request(const std::string& url);
@@ -64,6 +69,6 @@ namespace Scrapp {
 
         bool running() const;
     };
-}
+} // namespace Scrapp
 
-#endif //SCRAPP_SPIDER_H
+#endif // SCRAPP_SPIDER_H
