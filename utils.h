@@ -23,60 +23,23 @@
 #ifndef SCRAPP_UTILS_H
 #define SCRAPP_UTILS_H
 
-#include <cctype>
-#include <iomanip>
-#include <sstream>
+#include <memory>
 #include <string>
 
 namespace Scrapp {
-    std::string url_encode(const std::string& value) {
-        std::ostringstream escaped;
-        escaped.fill('0');
-        escaped << std::hex;
-
-        for (char c : value) {
-            // Keep alphanumeric and other accepted characters intact
-            if (isalnum(c) || c == '-' || c == '_' || c == '.' || c == '~') {
-                escaped << c;
-                continue;
-            }
-
-            // Any other characters are percent-encoded
-            escaped << std::uppercase;
-            escaped << '%' << std::setw(2) << int((unsigned char)c);
-            escaped << std::nouppercase;
+    // Copied from: https://stackoverflow.com/a/51274008/9105459
+    template<auto fn> struct deleter_from_fn {
+        template<class T> constexpr void operator()(T* pointer) const {
+            fn(pointer);
         }
+    };
+    template<class Type, auto DeleterFunction>
+    using unique_ptr_with_deleter =
+        std::unique_ptr<Type, deleter_from_fn<DeleterFunction>>;
 
-        return escaped.str();
-    }
-
-    char from_hex(char ch) {
-        return isdigit(ch) ? ch - '0' : tolower(ch) - 'a' + 10;
-    }
-
-    std::string url_decode(std::string text) {
-        char h;
-        std::ostringstream escaped;
-        escaped.fill('0');
-
-        for (auto i = text.begin(), n = text.end(); i != n; ++i) {
-            std::string::value_type c = (*i);
-
-            if (c == '%') {
-                if (i[1] && i[2]) {
-                    h = from_hex(i[1]) << 4 | from_hex(i[2]);
-                    escaped << h;
-                    i += 2;
-                }
-            } else if (c == '+') {
-                escaped << ' ';
-            } else {
-                escaped << c;
-            }
-        }
-
-        return escaped.str();
-    }
+    std::string url_encode(const std::string& value);
+    std::string url_decode(std::string text);
+    char from_hex(char ch);
 } // namespace Scrapp
 
 #endif // SCRAPP_UTILS_H

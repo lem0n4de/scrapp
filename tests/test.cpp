@@ -20,6 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include "exceptions.h"
 #include "request.h"
 #include "response.h"
 #include <catch2/catch_all.hpp>

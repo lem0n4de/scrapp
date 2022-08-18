@@ -32,10 +32,13 @@ set(Boost_DIR external/boost/lib/cmake/Boost-1.80.0)
 find_package(Boost 1.80.0 COMPONENTS json REQUIRED NO_SYSTEM_ENVIRONMENT_PATH NO_CMAKE_SYSTEM_PATH)
 
 set(SCRAPP_SOURCES
-        spider.cpp request.h
-        request.h utils.h response.h exceptions.h)
+        spider.h spider.cpp
+        request.h request.cpp
+        response.h response.cpp
+        exceptions.h exceptions.cpp
+        utils.h utils.cpp)
 
-add_library(${PROJECT_NAME} ${SCRAPP_SOURCES})
+add_library(${PROJECT_NAME} STATIC ${SCRAPP_SOURCES})
 target_include_directories(${PROJECT_NAME}
         PUBLIC ${Boost_INCLUDE_DIRS} ${LEXBOR_INCLUDES})
 target_link_libraries(${PROJECT_NAME}

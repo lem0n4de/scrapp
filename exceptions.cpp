@@ -20,39 +20,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef SCRAPP_RESPONSE_H
-#define SCRAPP_RESPONSE_H
-
-#include "request.h"
-#include <boost/json.hpp>
-#include <cpr/cpr.h>
+#include "exceptions.h"
+#include <utility>
 
 namespace Scrapp {
-    class Response {
-      public:
-        explicit Response(cpr::Response& res);
+    exception::exception(std::string message) : message(std::move(message)) {}
 
-        explicit Response();
-        ~Response();
+    const char* exception::what() const noexcept {
+        return this->message.c_str();
+    }
 
-        long status_code{};
-        std::string text{};
-        Headers headers{};
-        Url url{};
-        double elapsed{};
-        cpr::Cookies cookies{};
-        cpr::Error error{};
-        std::string raw_header{};
-        std::string status_line{};
-        std::string reason{};
-        cpr::cpr_off_t uploaded_bytes{};
-        cpr::cpr_off_t downloaded_bytes{};
-        long redirect_count{};
+    invalid_json_exception::invalid_json_exception(std::string message)
+        : exception(std::move(message)) {}
 
-        boost::json::value json();
-
-      private:
-    };
 } // namespace Scrapp
-
-#endif // SCRAPP_RESPONSE_H

@@ -42,66 +42,36 @@ namespace Scrapp {
       public:
         explicit Headers(
             const std::map<
-                std::string, std::string, cpr::CaseInsensitiveCompare>& map) {
-            for (const auto& [key, value] : map) {
-                this->insert_or_assign(key, value);
-            }
-        }
+                std::string, std::string, cpr::CaseInsensitiveCompare>& map);
     };
 
     class Request {
       public:
-        Request() = default;
-        explicit Request(Url url) : _url(std::move(url)){};
-
-        Request(Url url, RequestParameters params)
-            : _url(std::move(url)), _parameters(std::move(params)) {}
-
-        Request(Url url, Headers headers)
-            : _url(std::move(url)), _headers(std::move(headers)) {}
+        Request();
+        explicit Request(Url url);
+        Request(Url url, RequestParameters params);
+        Request(Url url, Headers headers);
 
         void add_parameter(
-            const std::pair<std::string, std::string>& param) noexcept {
-            this->_parameters[param.first] = param.second;
-        }
+            const std::pair<std::string, std::string>& param) noexcept;
 
         RequestParameters parameters() const noexcept {
             return this->_parameters;
         }
 
         void
-        add_header(const std::pair<std::string, std::string>& header) noexcept {
-            this->_headers[header.first] = header.second;
-        }
-
-        Headers headers() const noexcept { return this->_headers; }
-
-        void set_render(bool render) noexcept { this->_render = render; }
-
-        std::string full_url() const noexcept {
-            std::string total = this->_url.str();
-            total = total + "?";
-            for (const auto& [key, value] : this->_parameters) {
-                total +=
-                    Scrapp::url_encode(key) + "=" + Scrapp::url_encode(value);
-            }
-            return total;
-        }
-
-        std::string url() const noexcept { return this->_url.str(); }
-
-        bool operator==(const Request& other) const noexcept {
-            return this->_url == other._url &&
-                   this->_parameters == other._parameters &&
-                   this->_headers == other._headers &&
-                   this->_render == other._render;
-        }
+        add_header(const std::pair<std::string, std::string>& header) noexcept;
+        Headers headers() const noexcept;
+        void set_render(bool render) noexcept;
+        std::string full_url() const noexcept;
+        std::string url() const noexcept;
+        bool operator==(const Request& other) const noexcept;
 
       private:
-        Url _url;
+        Url _url{};
         RequestParameters _parameters;
         Headers _headers;
-        bool _render = false;
+        bool _render{};
     };
 } // namespace Scrapp
 

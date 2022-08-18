@@ -25,16 +25,12 @@
 
 #include <exception>
 #include <string>
-#include <utility>
 
 namespace Scrapp {
     class exception : public std::exception {
       public:
-        explicit exception(std::string message) : message(std::move(message)) {}
-
-        [[nodiscard]] const char* what() const noexcept override {
-            return this->message.c_str();
-        }
+        explicit exception(std::string message);
+        [[nodiscard]] const char* what() const noexcept override;
 
       private:
         const std::string message;
@@ -42,8 +38,7 @@ namespace Scrapp {
 
     class invalid_json_exception : public exception {
       public:
-        explicit invalid_json_exception(std::string message)
-            : exception(std::move(message)) {}
+        explicit invalid_json_exception(std::string message);
     };
 } // namespace Scrapp
 #endif // SCRAPP_EXCEPTIONS_H
