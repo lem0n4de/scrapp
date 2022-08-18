@@ -20,34 +20,28 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef SCRAPP_UTILS_H
-#define SCRAPP_UTILS_H
+#include "html/element.h"
+#include "html/types.h"
+#include <catch2/catch_test_macros.hpp>
 
-#include <algorithm>
-#include <memory>
-#include <string>
+const lxb_char_t* to_lxb_char(const std::string& str) {
+    return reinterpret_cast<const lxb_char_t*>(str.c_str());
+}
 
-namespace Scrapp {
-    // Copied from: https://stackoverflow.com/a/51274008/9105459
-    template<auto fn> struct deleter_from_fn {
-        template<class T> constexpr void operator()(T* pointer) const {
-            fn(pointer);
-        }
-    };
-    template<class Type, auto DeleterFunction>
-    using unique_ptr_with_deleter =
-        std::unique_ptr<Type, deleter_from_fn<DeleterFunction>>;
+using namespace Scrapp;
+using namespace Scrapp::Html;
 
-    std::string url_encode(const std::string& value);
-    std::string url_decode(std::string text);
-    char from_hex(char ch);
+TEST_CASE("HtmlElement") {
 
-    template<class T>
-    std::basic_string<T> to_lower(const std::basic_string<T>& value) {
-        std::basic_string<T> s = value;
-        std::transform(s.begin(), s.end(), s.begin(), tolower);
-        return s;
+    SECTION("HtmlElement::tag returns lowercase tag name") {
+        std::string html =
+            "<html><div class=\"something another-class\"</div></html>";
+        const lxb_char_t* lxb_html = to_lxb_char(html);
+        unique_lxb_html_document document{lxb_html_document_create()};
+        lxb_html_document_parse(
+            document.get(), to_lxb_char(html), sizeof(lxb_html) - 1);
+        auto body_el = lxb_dom_interface_element(document->body);
+        HtmlElement element{body_el};
+        REQUIRE(element.tag() == "body");
     }
-} // namespace Scrapp
-
-#endif // SCRAPP_UTILS_H
+}

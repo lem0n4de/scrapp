@@ -20,34 +20,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef SCRAPP_UTILS_H
-#define SCRAPP_UTILS_H
+#ifndef SCRAPP_TYPES_H
+#define SCRAPP_TYPES_H
 
-#include <algorithm>
-#include <memory>
-#include <string>
+#include "../utils.h"
+#include <lexbor/html/html.h>
 
 namespace Scrapp {
-    // Copied from: https://stackoverflow.com/a/51274008/9105459
-    template<auto fn> struct deleter_from_fn {
-        template<class T> constexpr void operator()(T* pointer) const {
-            fn(pointer);
-        }
-    };
-    template<class Type, auto DeleterFunction>
-    using unique_ptr_with_deleter =
-        std::unique_ptr<Type, deleter_from_fn<DeleterFunction>>;
-
-    std::string url_encode(const std::string& value);
-    std::string url_decode(std::string text);
-    char from_hex(char ch);
-
-    template<class T>
-    std::basic_string<T> to_lower(const std::basic_string<T>& value) {
-        std::basic_string<T> s = value;
-        std::transform(s.begin(), s.end(), s.begin(), tolower);
-        return s;
-    }
+    using unique_lxb_html_document =
+        unique_ptr_with_deleter<lxb_html_document_t, lxb_html_document_destroy>;
+    using unique_lxb_dom_collection = unique_ptr_with_deleter<
+        lxb_dom_collection_t, lxb_dom_collection_destroy>;
 } // namespace Scrapp
 
-#endif // SCRAPP_UTILS_H
+#endif // SCRAPP_TYPES_H

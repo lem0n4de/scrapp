@@ -1,5 +1,5 @@
 set(SCRAPP_TEST_SOURCES
-        test.cpp)
+        test.cpp html_tests.cpp)
 
 
 # CHECK Catch downloaded

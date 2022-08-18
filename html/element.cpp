@@ -20,34 +20,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef SCRAPP_UTILS_H
-#define SCRAPP_UTILS_H
+#include "element.h"
 
-#include <algorithm>
-#include <memory>
-#include <string>
+Scrapp::Html::HtmlElement::HtmlElement(lxb_dom_element_t* dom_el)
+    : element_p{dom_el} {}
 
-namespace Scrapp {
-    // Copied from: https://stackoverflow.com/a/51274008/9105459
-    template<auto fn> struct deleter_from_fn {
-        template<class T> constexpr void operator()(T* pointer) const {
-            fn(pointer);
-        }
-    };
-    template<class Type, auto DeleterFunction>
-    using unique_ptr_with_deleter =
-        std::unique_ptr<Type, deleter_from_fn<DeleterFunction>>;
-
-    std::string url_encode(const std::string& value);
-    std::string url_decode(std::string text);
-    char from_hex(char ch);
-
-    template<class T>
-    std::basic_string<T> to_lower(const std::basic_string<T>& value) {
-        std::basic_string<T> s = value;
-        std::transform(s.begin(), s.end(), s.begin(), tolower);
-        return s;
-    }
-} // namespace Scrapp
-
-#endif // SCRAPP_UTILS_H
+std::string Scrapp::Html::HtmlElement::tag() const noexcept {
+    size_t len;
+    auto lxb_tag = lxb_dom_element_tag_name(this->element_p, &len);
+    auto tag = std::string(reinterpret_cast<const char*>(lxb_tag));
+    return Scrapp::to_lower(tag);
+}

@@ -20,34 +20,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef SCRAPP_UTILS_H
-#define SCRAPP_UTILS_H
+#ifndef SCRAPP_ELEMENT_H
+#define SCRAPP_ELEMENT_H
 
-#include <algorithm>
-#include <memory>
-#include <string>
+#include "types.h"
 
-namespace Scrapp {
-    // Copied from: https://stackoverflow.com/a/51274008/9105459
-    template<auto fn> struct deleter_from_fn {
-        template<class T> constexpr void operator()(T* pointer) const {
-            fn(pointer);
-        }
+namespace Scrapp::Html {
+    class HtmlElement {
+      public:
+        explicit HtmlElement(lxb_dom_element_t* dom_el);
+        std::string tag() const noexcept;
+
+      private:
+        lxb_dom_element_t* element_p;
     };
-    template<class Type, auto DeleterFunction>
-    using unique_ptr_with_deleter =
-        std::unique_ptr<Type, deleter_from_fn<DeleterFunction>>;
+} // namespace Scrapp::Html
 
-    std::string url_encode(const std::string& value);
-    std::string url_decode(std::string text);
-    char from_hex(char ch);
-
-    template<class T>
-    std::basic_string<T> to_lower(const std::basic_string<T>& value) {
-        std::basic_string<T> s = value;
-        std::transform(s.begin(), s.end(), s.begin(), tolower);
-        return s;
-    }
-} // namespace Scrapp
-
-#endif // SCRAPP_UTILS_H
+#endif // SCRAPP_ELEMENT_H
