@@ -32,8 +32,16 @@ namespace Scrapp::Html {
     using Attributes = std::unordered_map<std::string, std::string>;
     using unique_lxb_html_document =
         unique_ptr_with_deleter<lxb_html_document_t, lxb_html_document_destroy>;
-    using unique_lxb_dom_collection = unique_ptr_with_deleter<
-        lxb_dom_collection_t, lxb_dom_collection_destroy>;
+
+    struct lxb_dom_collection_deleter {
+        template<class T> constexpr void operator()(T* col) {
+            lxb_dom_collection_destroy(col, true);
+        }
+    };
+
+    using unique_lxb_dom_collection =
+        std::unique_ptr<lxb_dom_collection_t, lxb_dom_collection_deleter>;
+
 } // namespace Scrapp::Html
 
 #endif // SCRAPP_TYPES_H

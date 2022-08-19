@@ -45,20 +45,19 @@ TEST_CASE("HtmlElement") {
             "<html><div class=\"something another-class\">hello</div><html>";
         auto html = (const lxb_char_t*)s_html.c_str();
         size_t html_size = s_html.size();
-        auto document = lxb_html_document_create();
-        lxb_html_document_parse(document, html, html_size);
+        unique_lxb_html_document document{lxb_html_document_create()};
+        lxb_html_document_parse(document.get(), html, html_size);
 
-        auto collection = lxb_dom_collection_make(&document->dom_document, 128);
+        unique_lxb_dom_collection collection{
+            lxb_dom_collection_make(&document->dom_document, 16)};
 
         lxb_status_t status;
         status = lxb_dom_elements_by_tag_name(
-            lxb_dom_interface_element(document->body), collection,
+            lxb_dom_interface_element(document->body), collection.get(),
             (const lxb_char_t*)"div", 3);
-        auto el_p = lxb_dom_collection_element(collection, 0);
+        auto el_p = lxb_dom_collection_element(collection.get(), 0);
         HtmlElement element{el_p};
         auto attrs = element.attributes();
         REQUIRE(attrs["class"] == "something another-class");
-
-        lxb_dom_collection_destroy(collection, true);
     }
 }
