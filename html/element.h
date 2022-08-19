@@ -32,10 +32,12 @@ namespace Scrapp::Html {
         std::string tag() const noexcept;
         const Attributes attributes() const noexcept;
         std::string get_attribute(const std::string& attr) const;
+        std::string text() const noexcept;
 
       private:
         lxb_dom_element_t* element_p;
         Attributes attributes_;
+        std::string text_;
     };
 } // namespace Scrapp::Html
 

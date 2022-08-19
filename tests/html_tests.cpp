@@ -82,7 +82,6 @@ TEST_CASE("HtmlElement") {
 
     SECTION(
         "::get_attribute throws attribute_error if given key does not exists") {
-
         std::string html_s = "<html><div id=\"42\">hey</div></html>";
         auto html = (const lxb_char_t*)html_s.c_str();
         size_t html_size = html_s.size();
@@ -98,5 +97,22 @@ TEST_CASE("HtmlElement") {
         HtmlElement element{el_p};
         REQUIRE_THROWS_AS(
             element.get_attribute("idd"), Scrapp::Html::attribute_error);
+    }
+
+    SECTION("::text returns textContent of element") {
+        std::string html_s = "<html><div id=\"42\">hey</div></html>";
+        auto html = (const lxb_char_t*)html_s.c_str();
+        size_t html_size = html_s.size();
+        unique_lxb_html_document document{lxb_html_document_create()};
+        lxb_html_document_parse(document.get(), html, html_size);
+        unique_lxb_dom_collection collection{
+            lxb_dom_collection_make(&document->dom_document, 16)};
+        lxb_dom_elements_by_tag_name(
+            lxb_dom_interface_element(
+                lxb_html_document_body_element(document.get())),
+            collection.get(), (const lxb_char_t*)"div", 3);
+        auto el_p = lxb_dom_collection_element(collection.get(), 0);
+        HtmlElement element{el_p};
+        REQUIRE(element.text() == "hey");
     }
 }

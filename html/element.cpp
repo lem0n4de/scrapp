@@ -36,6 +36,11 @@ namespace Scrapp::Html {
             this->attributes_[s_name] = s_value;
             attr = lxb_dom_element_next_attribute(attr);
         }
+
+        size_t len;
+        auto text_content =
+            lxb_dom_node_text_content(&this->element_p->node, &len);
+        this->text_ = std::string(reinterpret_cast<const char*>(text_content));
     }
 
     std::string HtmlElement::tag() const noexcept {
@@ -56,5 +61,7 @@ namespace Scrapp::Html {
         }
         return (*it).second;
     }
+
+    std::string HtmlElement::text() const noexcept { return this->text_; }
 
 } // namespace Scrapp::Html
