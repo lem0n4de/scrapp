@@ -25,12 +25,15 @@
 
 #include "../utils.h"
 #include <lexbor/html/html.h>
+#include <unordered_map>
 
-namespace Scrapp {
+namespace Scrapp::Html {
+    using Attribute = std::pair<std::string, std::string>;
+    using Attributes = std::unordered_map<std::string, std::string>;
     using unique_lxb_html_document =
         unique_ptr_with_deleter<lxb_html_document_t, lxb_html_document_destroy>;
     using unique_lxb_dom_collection = unique_ptr_with_deleter<
         lxb_dom_collection_t, lxb_dom_collection_destroy>;
-} // namespace Scrapp
+} // namespace Scrapp::Html
 
 #endif // SCRAPP_TYPES_H

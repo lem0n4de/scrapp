@@ -22,12 +22,29 @@
 
 #include "element.h"
 
-Scrapp::Html::HtmlElement::HtmlElement(lxb_dom_element_t* dom_el)
-    : element_p{dom_el} {}
+namespace Scrapp::Html {
 
-std::string Scrapp::Html::HtmlElement::tag() const noexcept {
-    size_t len;
-    auto lxb_tag = lxb_dom_element_tag_name(this->element_p, &len);
-    auto tag = std::string(reinterpret_cast<const char*>(lxb_tag));
-    return Scrapp::to_lower(tag);
-}
+    HtmlElement::HtmlElement(lxb_dom_element_t* dom_el) : element_p{dom_el} {
+        lxb_dom_attr_t* attr = this->element_p->first_attr;
+        while (attr != nullptr) {
+            size_t name_len, value_len;
+            auto name = lxb_dom_attr_local_name(attr, &name_len);
+            auto value = lxb_dom_attr_value(attr, &value_len);
+            auto s_name = std::string(reinterpret_cast<const char*>(name));
+            auto s_value = std::string(reinterpret_cast<const char*>(value));
+            this->attributes_[s_name] = s_value;
+            attr = lxb_dom_element_next_attribute(attr);
+        }
+    }
+
+    std::string HtmlElement::tag() const noexcept {
+        size_t len;
+        auto lxb_tag = lxb_dom_element_tag_name(this->element_p, &len);
+        auto tag = std::string(reinterpret_cast<const char*>(lxb_tag));
+        return Scrapp::to_lower(tag);
+    }
+
+    const Attributes HtmlElement::attributes() const noexcept {
+        return this->attributes_;
+    }
+} // namespace Scrapp::Html

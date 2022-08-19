@@ -30,9 +30,11 @@ namespace Scrapp::Html {
       public:
         explicit HtmlElement(lxb_dom_element_t* dom_el);
         std::string tag() const noexcept;
+        const Attributes attributes() const noexcept;
 
       private:
         lxb_dom_element_t* element_p;
+        Attributes attributes_;
     };
 } // namespace Scrapp::Html
 
