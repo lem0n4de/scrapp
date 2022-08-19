@@ -47,4 +47,9 @@ namespace Scrapp::Html {
     const Attributes HtmlElement::attributes() const noexcept {
         return this->attributes_;
     }
+
+    std::string HtmlElement::get_attribute(const std::string& attr) const {
+        return this->attributes_.at(attr);
+    }
+
 } // namespace Scrapp::Html

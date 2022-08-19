@@ -31,6 +31,7 @@ namespace Scrapp::Html {
         explicit HtmlElement(lxb_dom_element_t* dom_el);
         std::string tag() const noexcept;
         const Attributes attributes() const noexcept;
+        std::string get_attribute(const std::string& attr) const;
 
       private:
         lxb_dom_element_t* element_p;
