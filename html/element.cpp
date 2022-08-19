@@ -21,6 +21,7 @@
 // SOFTWARE.
 
 #include "element.h"
+#include "html_exceptions.h"
 
 namespace Scrapp::Html {
 
@@ -49,7 +50,11 @@ namespace Scrapp::Html {
     }
 
     std::string HtmlElement::get_attribute(const std::string& attr) const {
-        return this->attributes_.at(attr);
+        auto it = this->attributes_.find(attr);
+        if (it == this->attributes_.end()) {
+            throw attribute_error("element does not have attribute: " + attr);
+        }
+        return (*it).second;
     }
 
 } // namespace Scrapp::Html
