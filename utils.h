@@ -29,14 +29,14 @@
 
 namespace Scrapp {
     // Copied from: https://stackoverflow.com/a/51274008/9105459
-    template<auto fn> struct deleter_from_fn {
+    template<auto fn, auto... Arguments> struct deleter_from_fn {
         template<class T> constexpr void operator()(T* pointer) const {
-            fn(pointer);
+            fn(pointer, Arguments...);
         }
     };
-    template<class Type, auto DeleterFunction>
+    template<class Type, auto DeleterFunction, auto... Arguments>
     using unique_ptr_with_deleter =
-        std::unique_ptr<Type, deleter_from_fn<DeleterFunction>>;
+        std::unique_ptr<Type, deleter_from_fn<DeleterFunction, Arguments...>>;
 
     std::string url_encode(const std::string& value);
     std::string url_decode(std::string text);

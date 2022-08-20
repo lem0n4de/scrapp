@@ -24,7 +24,9 @@
 #define SCRAPP_TYPES_H
 
 #include "../utils.h"
+#include <lexbor/css/css.h>
 #include <lexbor/html/html.h>
+#include <lexbor/selectors/selectors.h>
 #include <unordered_map>
 
 namespace Scrapp::Html {
@@ -32,15 +34,14 @@ namespace Scrapp::Html {
     using Attributes = std::unordered_map<std::string, std::string>;
     using unique_lxb_html_document =
         unique_ptr_with_deleter<lxb_html_document_t, lxb_html_document_destroy>;
-
-    struct lxb_dom_collection_deleter {
-        template<class T> constexpr void operator()(T* col) {
-            lxb_dom_collection_destroy(col, true);
-        }
-    };
-
-    using unique_lxb_dom_collection =
-        std::unique_ptr<lxb_dom_collection_t, lxb_dom_collection_deleter>;
+    using unique_lxb_dom_collection = unique_ptr_with_deleter<
+        lxb_dom_collection_t, lxb_dom_collection_destroy, true>;
+    using unique_lxb_css_parser =
+        unique_ptr_with_deleter<lxb_css_parser_t, lxb_css_parser_destroy, true>;
+    using unique_lxb_css_selector_list = unique_ptr_with_deleter<
+        lxb_css_selector_list_t, lxb_css_selector_list_destroy_memory>;
+    using unique_lxb_selectors =
+        unique_ptr_with_deleter<lxb_selectors_t, lxb_selectors_destroy, true>;
 
 } // namespace Scrapp::Html
 

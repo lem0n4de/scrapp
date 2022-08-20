@@ -22,9 +22,10 @@
 
 #include "element.h"
 #include "html_exceptions.h"
+#include <lexbor/css/css.h>
+#include <lexbor/selectors/selectors.h>
 
 namespace Scrapp::Html {
-
     HtmlElement::HtmlElement(lxb_dom_element_t* dom_el) : element_p{dom_el} {
         lxb_dom_attr_t* attr = this->element_p->first_attr;
         while (attr != nullptr) {
@@ -63,5 +64,39 @@ namespace Scrapp::Html {
     }
 
     std::string HtmlElement::text() const noexcept { return this->text_; }
+
+    static lxb_status_t callback(
+        lxb_dom_node_t* node, lxb_css_selector_specificity_t* spec, void* ctx) {
+        auto* pointers = static_cast<std::vector<HtmlElement>*>(ctx);
+        pointers->push_back(HtmlElement{lxb_dom_interface_element(node)});
+        return LXB_STATUS_OK;
+    }
+
+    std::vector<HtmlElement>
+    HtmlElement::css(const std::string& select) const noexcept {
+        lxb_status_t status;
+        auto selectors_string = (const lxb_char_t*)select.c_str();
+        unique_lxb_css_parser parser{lxb_css_parser_create()};
+        status = lxb_css_parser_init(parser.get(), nullptr, nullptr);
+        if (status != LXB_STATUS_OK) {
+            return {};
+        }
+        unique_lxb_selectors selectors{lxb_selectors_create()};
+        status = lxb_selectors_init(selectors.get());
+        if (status != LXB_STATUS_OK) {
+            return {};
+        }
+
+        unique_lxb_css_selector_list selector_list{lxb_css_selectors_parse(
+            parser.get(), selectors_string, select.length())};
+        if (parser->status != LXB_STATUS_OK) {
+            return {};
+        }
+        std::vector<HtmlElement> found;
+        lxb_selectors_find(
+            selectors.get(), &this->element_p->node, selector_list.get(),
+            callback, &found);
+        return found;
+    }
 
 } // namespace Scrapp::Html

@@ -24,6 +24,7 @@
 #define SCRAPP_ELEMENT_H
 
 #include "types.h"
+#include <vector>
 
 namespace Scrapp::Html {
     class HtmlElement {
@@ -33,8 +34,11 @@ namespace Scrapp::Html {
         const Attributes attributes() const noexcept;
         std::string get_attribute(const std::string& attr) const;
         std::string text() const noexcept;
+        std::vector<HtmlElement> css(const std::string& select) const noexcept;
 
       private:
+        // Not using unique pointer here because these pointers are deleted with
+        // lxb_html_document_destroy
         lxb_dom_element_t* element_p;
         Attributes attributes_;
         std::string text_;
