@@ -153,4 +153,25 @@ TEST_CASE("HtmlElement") {
         auto selected = element.css("#no-item-with-this-id");
         REQUIRE(selected.empty());
     }
+    SECTION("::css return empty list if no child exists") {
+        std::string html_s =
+            R"(<html><div id="42">hey<div id="hello">hello</div></div></html>)";
+        auto html = (const lxb_char_t*)html_s.c_str();
+        size_t html_size = html_s.size();
+        unique_lxb_html_document document{lxb_html_document_create()};
+        lxb_html_document_parse(document.get(), html, html_size);
+        unique_lxb_dom_collection collection{
+            lxb_dom_collection_make(&document->dom_document, 16)};
+        lxb_dom_elements_by_tag_name(
+            lxb_dom_interface_element(
+                lxb_html_document_body_element(document.get())),
+            collection.get(), (const lxb_char_t*)"div", 3);
+        auto el_p = lxb_dom_collection_element(collection.get(), 0);
+        HtmlElement element{el_p};
+        auto selected = element.css("#hello");
+        REQUIRE(selected[0].text() == "hello");
+        auto el = selected[0];
+        auto found = el.css("div");
+        REQUIRE(found.empty());
+    }
 }
