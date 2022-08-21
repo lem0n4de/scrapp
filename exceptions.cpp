@@ -33,4 +33,7 @@ namespace Scrapp {
     invalid_json_exception::invalid_json_exception(std::string message)
         : exception(std::move(message)) {}
 
+    invalid_content_type_exception::invalid_content_type_exception(
+        std::string message)
+        : exception(message) {}
 } // namespace Scrapp

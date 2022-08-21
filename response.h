@@ -23,7 +23,10 @@
 #ifndef SCRAPP_RESPONSE_H
 #define SCRAPP_RESPONSE_H
 
+#include "exceptions.h"
+#include "html/document.h"
 #include "request.h"
+#include <boost/algorithm/string.hpp>
 #include <boost/json.hpp>
 #include <cpr/cpr.h>
 
@@ -50,6 +53,27 @@ namespace Scrapp {
         long redirect_count{};
 
         boost::json::value json();
+
+        template<bool check_content_type = true>
+        Html::HtmlDocument html() const {
+            if constexpr (check_content_type) {
+                auto content_type = this->headers.at("Content-Type");
+                if (!boost::algorithm::contains(content_type, "text/html") ||
+                    !boost::algorithm::contains(
+                        content_type, "multipart/related") ||
+                    !boost::algorithm::contains(
+                        content_type, "application/xhtml+xml")) {
+                    throw invalid_content_type_exception(
+                        "response to " + this->url.str() +
+                        " does not have a valid HTML content-type. "
+                        "Content-Type: " +
+                        content_type);
+                }
+                return Html::HtmlDocument{this->text};
+            } else {
+                return Html::HtmlDocument{this->text};
+            }
+        }
 
       private:
     };

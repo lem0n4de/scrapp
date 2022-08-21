@@ -40,5 +40,10 @@ namespace Scrapp {
       public:
         explicit invalid_json_exception(std::string message);
     };
+
+    class invalid_content_type_exception : public exception {
+      public:
+        explicit invalid_content_type_exception(std::string message);
+    };
 } // namespace Scrapp
 #endif // SCRAPP_EXCEPTIONS_H

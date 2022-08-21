@@ -64,6 +64,33 @@ TEST_CASE("Request") {
     }
 }
 
+TEST_CASE("Response") {
+    auto json_response = Scrapp::Response{};
+    json_response.text =
+        R"JSON({"key1": "value", "key2": ["value2", true, false], "key3": 42})JSON";
+    json_response.headers["Content-Type"] = "application/json";
+    auto html_response = Scrapp::Response{};
+    html_response.text =
+        R"HTML(<div><a src="example.com" /><div id="42">thisisdiv42</div></div>)HTML";
+    html_response.headers["Content-Type"] = "text/html";
+
+    SECTION("::html() throws invalid_content_type_exception if "
+            "check-content-type enabled and response does not have valid html "
+            "content-type") {
+        REQUIRE_THROWS_AS(
+            json_response.html<true>(), Scrapp::invalid_content_type_exception);
+    }
+
+    SECTION("::html<false>() does not throw even with invalid text") {
+        REQUIRE_NOTHROW(json_response.html<false>());
+    }
+
+    SECTION("::html<true>() is the default") {
+        REQUIRE_THROWS_AS(
+            json_response.html(), Scrapp::invalid_content_type_exception);
+    }
+}
+
 TEST_CASE("Spider class") {
     auto mock_spider = MockSpider();
     SECTION("requests added before start() are added to request_queue") {
