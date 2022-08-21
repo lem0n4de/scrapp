@@ -34,7 +34,7 @@ namespace Scrapp::Html {
 
       public:
         explicit HtmlDocument(std::string html);
-        HtmlElement head() const noexcept;
+        [[nodiscard]] HtmlElement head() const noexcept;
         [[nodiscard]] HtmlElement body() const noexcept;
     };
 } // namespace Scrapp::Html
