@@ -49,7 +49,14 @@ namespace Scrapp::Html {
     static lxb_status_t callback(
         lxb_dom_node_t* node, lxb_css_selector_specificity_t* spec, void* ctx) {
         auto* pointers = static_cast<std::vector<HtmlElement>*>(ctx);
-        pointers->push_back(HtmlElement{lxb_dom_interface_element(node)});
+        HtmlElement element{lxb_dom_interface_element(node)};
+        auto it = std::find_if(
+            pointers->begin(), pointers->end(),
+            [element](const HtmlElement& other) { return element == other; });
+        if (it != pointers->end()) {
+            return LXB_STATUS_OK;
+        }
+        pointers->push_back(element);
         return LXB_STATUS_OK;
     }
 

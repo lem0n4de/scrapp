@@ -35,6 +35,7 @@ namespace Scrapp::Html {
         std::string get_attribute(const std::string& attr) const;
         std::string text() const noexcept;
         std::vector<HtmlElement> css(const std::string& select) const noexcept;
+        bool operator==(const HtmlElement& other) const noexcept;
 
       private:
         // Not using unique pointer here because these pointers are deleted with
