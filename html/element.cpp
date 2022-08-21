@@ -32,6 +32,11 @@ namespace Scrapp::Html {
             size_t name_len, value_len;
             auto name = lxb_dom_attr_local_name(attr, &name_len);
             auto value = lxb_dom_attr_value(attr, &value_len);
+            if (value == nullptr) {
+                // this attr is not a key-value pair
+                // default to empty string
+                value = (const lxb_char_t*)"";
+            }
             auto s_name = std::string(reinterpret_cast<const char*>(name));
             auto s_value = std::string(reinterpret_cast<const char*>(value));
             this->attributes_[s_name] = s_value;
