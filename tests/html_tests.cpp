@@ -212,4 +212,24 @@ TEST_CASE("HtmlDocument") {
         REQUIRE(body.tag() == "body");
         REQUIRE(body.get_attribute("id") == "42");
     }
+
+    SECTION("::css finds elements that match the selectors") {
+        std::string html = "<div id=\"42\">thisisdiv42</div>";
+        std::string selectors_ = "#42";
+
+        HtmlDocument document{html};
+        auto found = document.css(selectors_);
+        REQUIRE(!found.empty());
+        REQUIRE(found[0].get_attribute("id") == "42");
+        REQUIRE(found[0].text() == "thisisdiv42");
+    }
+
+    SECTION("::css returns empty list if nothing found") {
+        std::string html = "<div id=\"42\">thisisdiv42</div>";
+        std::string selectors_ = "#43";
+
+        HtmlDocument document{html};
+        auto found = document.css(selectors_);
+        REQUIRE(found.empty());
+    }
 }
