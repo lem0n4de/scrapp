@@ -20,6 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include "html/document.h"
 #include "html/element.h"
 #include "html/html_exceptions.h"
 #include "html/types.h"
@@ -173,5 +174,15 @@ TEST_CASE("HtmlElement") {
         auto el = selected[0];
         auto found = el.css("div");
         REQUIRE(found.empty());
+    }
+}
+
+TEST_CASE("HtmlDocument") {
+    SECTION("::head returns <head> HtmlElement") {
+        std::string html = "<html><head id=\"42\"></head></html>";
+        HtmlDocument document{html};
+        auto head = document.head();
+        REQUIRE(head.tag() == "head");
+        REQUIRE(head.get_attribute("id") == "42");
     }
 }

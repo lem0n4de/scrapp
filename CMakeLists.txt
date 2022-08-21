@@ -36,7 +36,11 @@ set(SCRAPP_SOURCES
         request.h request.cpp
         response.h response.cpp
         exceptions.h exceptions.cpp
-        utils.h utils.cpp html/element.cpp html/element.h html/types.h html/html_exceptions.cpp html/html_exceptions.h)
+        utils.h utils.cpp
+        html/types.h
+        html/element.cpp html/element.h
+        html/html_exceptions.cpp html/html_exceptions.h
+        html/document.cpp html/document.h)
 
 add_library(${PROJECT_NAME} STATIC ${SCRAPP_SOURCES})
 target_include_directories(${PROJECT_NAME}
