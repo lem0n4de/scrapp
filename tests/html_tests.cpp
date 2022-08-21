@@ -185,4 +185,13 @@ TEST_CASE("HtmlDocument") {
         REQUIRE(head.tag() == "head");
         REQUIRE(head.get_attribute("id") == "42");
     }
+
+    SECTION("::body returns <body> HtmlElement") {
+        std::string html =
+            "<html><head></head><body autocomplete id=\"42\"></body></html>";
+        HtmlDocument document{html};
+        auto body = document.body();
+        REQUIRE(body.tag() == "body");
+        REQUIRE(body.get_attribute("id") == "42");
+    }
 }

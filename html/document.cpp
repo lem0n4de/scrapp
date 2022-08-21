@@ -37,4 +37,9 @@ namespace Scrapp::Html {
         auto head = lxb_html_document_head_element(this->document_.get());
         return HtmlElement{lxb_dom_interface_element(head)};
     }
+
+    HtmlElement HtmlDocument::body() const noexcept {
+        auto body = lxb_html_document_body_element(this->document_.get());
+        return HtmlElement{lxb_dom_interface_element(body)};
+    }
 } // namespace Scrapp::Html
