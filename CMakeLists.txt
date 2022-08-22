@@ -1,7 +1,8 @@
-cmake_minimum_required(VERSION 3.22)
+cmake_minimum_required(VERSION 3.23)
 project(scrapp)
 
 set(CMAKE_CXX_STANDARD 17)
+option(SCRAPP_BUILD_TESTS "Build with tests" OFF)
 
 find_package(Git QUIET)
 if (GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
@@ -31,23 +32,25 @@ execute_process(COMMAND ./install-boost.sh
 set(Boost_DIR external/boost/lib/cmake/Boost-1.80.0)
 find_package(Boost 1.80.0 COMPONENTS json REQUIRED NO_SYSTEM_ENVIRONMENT_PATH NO_CMAKE_SYSTEM_PATH)
 
+set(SCRAPP_HEADERS
+        spider.h request.h response.h exceptions.h utils.h html/types.h html/element.h html/html_exceptions.h html/document.h)
 set(SCRAPP_SOURCES
-        spider.h spider.cpp
-        request.h request.cpp
-        response.h response.cpp
-        exceptions.h exceptions.cpp
-        utils.h utils.cpp
-        html/types.h
-        html/element.cpp html/element.h
-        html/html_exceptions.cpp html/html_exceptions.h
-        html/document.cpp html/document.h)
+        spider.cpp request.cpp response.cpp exceptions.cpp utils.cpp html/element.cpp html/html_exceptions.cpp html/document.cpp)
 
-add_library(${PROJECT_NAME} STATIC ${SCRAPP_SOURCES})
+add_library(${PROJECT_NAME} STATIC)
+target_sources(
+        ${PROJECT_NAME}
+        PRIVATE ${SCRAPP_SOURCES}
+        PUBLIC FILE_SET HEADERS BASE_DIRS ${PROJECT_SOURCE_DIR} FILES ${SCRAPP_HEADERS})
 target_include_directories(${PROJECT_NAME}
         PUBLIC ${Boost_INCLUDE_DIRS} ${LEXBOR_INCLUDES})
 target_link_libraries(${PROJECT_NAME}
         PUBLIC cpr::cpr
         PUBLIC ${Boost_LIBRARIES}
         PUBLIC lexbor)
-enable_testing()
-add_subdirectory(tests)
+
+install(TARGETS ${PROJECT_NAME} FILE_SET HEADERS)
+if (SCRAPP_BUILD_TESTS)
+    enable_testing()
+    add_subdirectory(tests)
+endif ()
